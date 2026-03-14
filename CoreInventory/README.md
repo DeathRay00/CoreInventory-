@@ -52,7 +52,7 @@ CoreInventory/
 
 ---
 
-## Quick Start
+## Quick Start (Local — without Docker)
 
 ### Prerequisites
 - Python 3.11+
@@ -93,22 +93,14 @@ CREATE DATABASE coreinventory OWNER coreinventory;
 ```bash
 cd backend
 
-# Create virtual environment
 python -m venv venv
 venv\Scripts\activate        # Windows
 # source venv/bin/activate   # macOS / Linux
 
-# Install dependencies
 pip install -r requirements.txt
-
-# Run database migrations
 alembic upgrade head
-
-# Start the API server
 uvicorn main:app --reload --port 8000
 ```
-
-The API will be available at **http://localhost:8000**
 
 ---
 
@@ -116,12 +108,75 @@ The API will be available at **http://localhost:8000**
 
 ```bash
 cd frontend
-
 npm install
 npm run dev
 ```
 
-The web dashboard will be available at **http://localhost:3000**
+The web dashboard will be at **http://localhost:3000**
+
+---
+
+## 🐳 Quick Start (Docker — Recommended)
+
+### Prerequisites
+- Docker Desktop installed and running
+
+### 1. Clone & Configure
+
+```bash
+git clone https://github.com/DeathRay00/CoreInventory-.git
+cd CoreInventory
+cp .env.example .env
+```
+
+Edit `.env` — at minimum set:
+
+```env
+POSTGRES_PASSWORD=strongpassword
+JWT_SECRET_KEY=change-this-to-a-strong-random-secret
+```
+
+### 2. Start All Services
+
+```bash
+docker compose up --build -d
+```
+
+This starts 4 containers automatically:
+
+| Container | URL |
+|---|---|
+| Frontend (React + Nginx) | http://localhost:3000 |
+| Backend (FastAPI) | http://localhost:8000 |
+| Swagger UI | http://localhost:8000/docs |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
+
+### 3. Start with pgAdmin (optional)
+
+```bash
+docker compose --profile dev up --build -d
+```
+
+pgAdmin will be at **http://localhost:5050** (login: `admin@coreinventory.local` / `admin`)
+
+### 4. Stop All Services
+
+```bash
+docker compose down          # stop, keep DB data
+docker compose down -v       # stop and wipe DB volume
+```
+
+### Docker Files
+
+| File | Purpose |
+|---|---|
+| `backend/Dockerfile` | Multi-stage Python build (gcc → slim runtime, runs as non-root) |
+| `frontend/Dockerfile` | Multi-stage Node build (Vite build → Nginx alpine) |
+| `frontend/nginx.conf` | SPA routing fallback + `/api/` proxy to backend |
+| `docker-compose.yml` | Orchestrates all 5 services with healthchecks and named volumes |
+
+
 
 ---
 
