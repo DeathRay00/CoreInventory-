@@ -13,7 +13,7 @@ StaffDep   = Depends(require_role("warehouse_staff"))
 AnyDep     = Depends(require_role("inventory_manager", "warehouse_staff"))
 
 
-@router.post("", response_model=ReceiptOut, status_code=201, dependencies=[StaffDep])
+@router.post("", response_model=ReceiptOut, status_code=201, dependencies=[AnyDep])
 async def create(
     data: ReceiptCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -22,7 +22,7 @@ async def create(
     return await create_receipt(db, data, current_user.id)
 
 
-@router.post("/{receipt_id}/validate", response_model=ReceiptOut, dependencies=[StaffDep])
+@router.post("/{receipt_id}/validate", response_model=ReceiptOut, dependencies=[AnyDep])
 async def validate(
     receipt_id: uuid.UUID,
     background_tasks: BackgroundTasks,

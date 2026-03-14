@@ -13,10 +13,9 @@ from schemas.inventory import DashboardOut
 from auth.dependencies import require_role
 
 router = APIRouter(tags=["Dashboard"])
-ManagerDep = Depends(require_role("inventory_manager"))
+AnyDep = Depends(require_role("inventory_manager", "warehouse_staff"))
 
-
-@router.get("/dashboard", response_model=DashboardOut, dependencies=[ManagerDep])
+@router.get("/dashboard", response_model=DashboardOut, dependencies=[AnyDep])
 async def get_dashboard(db: Annotated[AsyncSession, Depends(get_db)]):
     # Total products in system
     all_prods = await db.execute(select(func.count(Product.id)))

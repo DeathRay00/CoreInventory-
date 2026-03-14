@@ -13,7 +13,7 @@ StaffDep = Depends(require_role("warehouse_staff"))
 AnyDep   = Depends(require_role("inventory_manager", "warehouse_staff"))
 
 
-@router.post("", response_model=DeliveryOut, status_code=201, dependencies=[StaffDep])
+@router.post("", response_model=DeliveryOut, status_code=201, dependencies=[AnyDep])
 async def create(
     data: DeliveryCreate,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -22,7 +22,7 @@ async def create(
     return await create_delivery(db, data, current_user.id)
 
 
-@router.post("/{delivery_id}/validate", response_model=DeliveryOut, dependencies=[StaffDep])
+@router.post("/{delivery_id}/validate", response_model=DeliveryOut, dependencies=[AnyDep])
 async def validate(
     delivery_id: uuid.UUID,
     background_tasks: BackgroundTasks,
