@@ -150,7 +150,7 @@ npm run dev
 
 | Operation | Inventory Manager | Warehouse Staff |
 |---|:---:|:---:|
-| View Dashboard & KPIs | ✅ | ❌ |
+| View Dashboard & KPIs | ✅ | ✅ |
 | Add/Edit Products | ✅ | ❌ |
 | Setup Warehouses | ✅ | ❌ |
 | View Ledger History | ✅ | ❌ |
