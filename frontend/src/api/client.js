@@ -38,6 +38,8 @@ export const authApi = {
   me:       ()     => api.get('/auth/me'),
   requestReset: (email) => api.post('/auth/request-reset', { email }),
   resetPassword: (data)  => api.post('/auth/reset-password', data),
+  signupSendOtp: (data)  => api.post('/auth/signup/send-otp', data),
+  signupVerify:  (data)  => api.post('/auth/signup/verify', data),
 }
 
 // ── Products & Categories ─────────────────────────────────

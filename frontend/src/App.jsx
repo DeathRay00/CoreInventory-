@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext'
 import Sidebar from './components/Sidebar'
 
 import Login         from './pages/Login'
+import Signup        from './pages/Signup'
 import Dashboard     from './pages/Dashboard'
 import Products      from './pages/Products'
 import Categories    from './pages/Categories'
@@ -36,6 +37,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/signup" element={user ? <Navigate to="/dashboard" replace /> : <Signup />} />
       <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
 
       <Route path="/dashboard"   element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />

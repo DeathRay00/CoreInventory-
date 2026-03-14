@@ -83,7 +83,12 @@ export default function Login() {
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 12, color: 'var(--text-muted)' }}>
+        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: 'var(--text-muted)' }}>
+          Don't have an account?{' '}
+          <a href="/signup" style={{ color: 'var(--accent-blue)', fontWeight: 600 }}>Create Account</a>
+        </p>
+
+        <p style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: 'var(--text-muted)' }}>
           CoreInventory v1.0 · Secure access only
         </p>
       </div>
