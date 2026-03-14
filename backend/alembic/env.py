@@ -22,7 +22,12 @@ import models.ledger
 import models.alert
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("+asyncpg", "+psycopg2"))
+url = settings.DATABASE_URL
+if url.startswith("sqlite+aiosqlite"):
+    url = url.replace("sqlite+aiosqlite", "sqlite")
+else:
+    url = url.replace("+asyncpg", "+psycopg2")
+config.set_main_option("sqlalchemy.url", url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

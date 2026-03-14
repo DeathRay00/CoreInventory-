@@ -21,7 +21,8 @@ class ReceiptItemOut(BaseModel):
     warehouse_id: uuid.UUID
     quantity: int
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class ReceiptOut(BaseModel):
@@ -32,7 +33,8 @@ class ReceiptOut(BaseModel):
     created_at: datetime
     items: List[ReceiptItemOut] = []
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class DeliveryItemCreate(BaseModel):
@@ -52,7 +54,8 @@ class DeliveryItemOut(BaseModel):
     warehouse_id: uuid.UUID
     quantity: int
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class DeliveryOut(BaseModel):
@@ -63,4 +66,5 @@ class DeliveryOut(BaseModel):
     created_at: datetime
     items: List[DeliveryItemOut] = []
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True

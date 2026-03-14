@@ -21,7 +21,8 @@ class TransferOut(BaseModel):
     created_by: Optional[uuid.UUID]
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class AdjustmentCreate(BaseModel):
@@ -40,7 +41,8 @@ class AdjustmentOut(BaseModel):
     created_by: Optional[uuid.UUID]
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class StockOut(BaseModel):
@@ -50,7 +52,8 @@ class StockOut(BaseModel):
     location_id: Optional[uuid.UUID]
     quantity: int
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class LedgerOut(BaseModel):
@@ -63,7 +66,8 @@ class LedgerOut(BaseModel):
     user_id: Optional[uuid.UUID]
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class AlertOut(BaseModel):
@@ -75,7 +79,8 @@ class AlertOut(BaseModel):
     is_resolved: bool
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class DashboardOut(BaseModel):

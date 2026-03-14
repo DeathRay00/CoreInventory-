@@ -13,7 +13,8 @@ class WarehouseOut(BaseModel):
     name: str
     address: Optional[str]
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class LocationCreate(BaseModel):
@@ -28,4 +29,5 @@ class LocationOut(BaseModel):
     name: str
     rack_code: Optional[str]
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True

@@ -13,7 +13,8 @@ class CategoryOut(BaseModel):
     name: str
     description: Optional[str]
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
 
 
 class ProductCreate(BaseModel):
@@ -39,4 +40,5 @@ class ProductOut(BaseModel):
     unit_of_measure: str
     reorder_level: int
 
-    model_config = {"from_attributes": True}
+    class Config:
+        orm_mode = True
