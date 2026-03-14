@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import DataTable from '../components/DataTable'
 import Modal from '../components/Modal'
@@ -11,6 +12,9 @@ export default function StockView() {
   const [products, setProducts] = useState([])
   const [warehouses, setWarehouses] = useState([])
   const [loading, setLoading] = useState(true)
+  const { search } = useLocation()
+  const queryParams = useMemo(() => new URLSearchParams(search), [search])
+  const statusFilter = queryParams.get('status')
 
   // Edit stock modal state
   const [isEditOpen, setIsEditOpen] = useState(false)
@@ -20,12 +24,19 @@ export default function StockView() {
 
   const fetch = () => {
     setLoading(true)
-    Promise.all([stockApi.list({ limit: 200 }), productsApi.list({ limit: 200 }), warehousesApi.list({ limit: 100 })])
+    const stockParams = { limit: 200 }
+    if (statusFilter) stockParams.stock_status = statusFilter
+
+    Promise.all([
+      stockApi.list(stockParams),
+      productsApi.list({ limit: 200 }),
+      warehousesApi.list({ limit: 100 })
+    ])
       .then(([s, p, w]) => { setData(s.data); setProducts(p.data); setWarehouses(w.data) })
       .catch(e => toast.error(e.message))
       .finally(() => setLoading(false))
   }
-  useEffect(fetch, [])
+  useEffect(fetch, [statusFilter])
 
   const whName   = (id) => warehouses.find(w => w.id === id)?.name  || '—'
   const prodName = (id) => products.find(p => p.id === id)?.name    || '—'
@@ -98,7 +109,13 @@ export default function StockView() {
         <div className="page-header">
           <div className="page-header-left">
             <h2>Current Stock</h2>
-            <p>User must be able to update the stock from here.</p>
+            <p>
+              {statusFilter ? (
+                <>Filtering by: <span className="badge badge-blue">{statusFilter.toUpperCase()} STOCK</span></>
+              ) : (
+                "This page contains the warehouse details & location."
+              )}
+            </p>
           </div>
         </div>
         <DataTable columns={cols} data={data} loading={loading} />

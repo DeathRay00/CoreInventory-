@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from database import get_db
 from models.stock import Stock
+from models.product import Product
 from models.ledger import StockLedger
 from schemas.inventory import StockOut, LedgerOut
 from auth.dependencies import require_role
@@ -19,6 +20,7 @@ async def get_stock(
     db: Annotated[AsyncSession, Depends(get_db)],
     warehouse_id: Optional[uuid.UUID] = Query(None),
     product_id: Optional[uuid.UUID] = Query(None),
+    stock_status: Optional[str] = Query(None, description="Filter by stock status: low, out"),
     limit: int = Query(20, ge=1, le=500),
     offset: int = Query(0, ge=0),
 ):
@@ -27,6 +29,14 @@ async def get_stock(
         query = query.where(Stock.warehouse_id == warehouse_id)
     if product_id:
         query = query.where(Stock.product_id == product_id)
+    
+    if stock_status == "low":
+        query = query.join(Product, Product.id == Stock.product_id).where(
+            Stock.quantity > 0, Stock.quantity <= Product.reorder_level
+        )
+    elif stock_status == "out":
+        query = query.where(Stock.quantity == 0)
+
     query = query.limit(min(limit, 500)).offset(offset)
     result = await db.execute(query)
     return result.scalars().all()

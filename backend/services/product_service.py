@@ -6,6 +6,7 @@ from models.product import Product
 from models.category import Category
 from schemas.product import ProductCreate, ProductUpdate, CategoryCreate
 from fastapi import HTTPException, status
+from services.ledger_service import create_ledger_entry
 
 
 # ── Category service ──────────────────────────────────────────────────────────
@@ -31,7 +32,7 @@ async def list_categories(db: AsyncSession, limit: int = 20, offset: int = 0) ->
 
 # ── Product service ───────────────────────────────────────────────────────────
 
-async def create_product(db: AsyncSession, data: ProductCreate) -> Product:
+async def create_product(db: AsyncSession, data: ProductCreate, user_id: uuid.UUID | None = None) -> Product:
     dup = await db.execute(select(Product).where(Product.sku == data.sku))
     if dup.scalar_one_or_none():
         raise HTTPException(
@@ -41,6 +42,18 @@ async def create_product(db: AsyncSession, data: ProductCreate) -> Product:
     product = Product(**data.model_dump())
     db.add(product)
     await db.flush()
+
+    # Create ledger entry for product creation
+    await create_ledger_entry(
+        db=db,
+        product_id=product.id,
+        warehouse_id=None,
+        change_type="product_creation",
+        quantity_change=0,
+        reference_id=None,
+        user_id=user_id,
+    )
+
     await db.refresh(product)
     return product
 

@@ -10,6 +10,7 @@ const TYPE_COLORS = {
   transfer_in:  'badge-blue',
   transfer_out: 'badge-yellow',
   adjustment:   'badge-purple',
+  product_creation: 'badge-blue',
 }
 
 export default function Ledger() {

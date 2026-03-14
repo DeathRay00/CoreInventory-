@@ -13,11 +13,11 @@ class StockLedger(Base):
     product_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    warehouse_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("warehouses.id", ondelete="CASCADE"), nullable=False, index=True
+    warehouse_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("warehouses.id", ondelete="CASCADE"), nullable=True, index=True
     )
     change_type: Mapped[str] = mapped_column(
-        Enum("receipt", "delivery", "transfer_in", "transfer_out", "adjustment", name="ledger_change_type"),
+        Enum("receipt", "delivery", "transfer_in", "transfer_out", "adjustment", "product_creation", name="ledger_change_type"),
         nullable=False,
     )
     quantity_change: Mapped[int] = mapped_column(Integer, nullable=False)

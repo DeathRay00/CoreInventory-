@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import StatsCard from '../components/StatsCard'
 import { dashboardApi } from '../api/client'
@@ -39,6 +40,7 @@ const CustomTooltip = ({ active, payload }) => {
 export default function Dashboard() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
   const { setAlerts } = useNotifications()
 
   useEffect(() => {
@@ -63,6 +65,16 @@ export default function Dashboard() {
     { name: 'Out of Stock',  value: data.out_of_stock_count },
   ] : []
 
+  const onPieClick = (data, index) => {
+    const statusMap = { 'Low Stock': 'low', 'Out of Stock': 'out' }
+    const status = statusMap[data.name]
+    if (status) {
+      navigate(`/stock?status=${status}`)
+    } else {
+      navigate('/stock')
+    }
+  }
+
   return (
     <>
       <Navbar title="Dashboard" subtitle="Welcome back — here's your inventory overview" />
@@ -72,14 +84,14 @@ export default function Dashboard() {
         ) : (
           <>
             <div className="stats-grid">
-              <StatsCard label="Total Products"     value={data?.total_products}      icon={Package}          color="blue" />
-              <StatsCard label="Total Stock Units"  value={data?.total_stock_value}   icon={BoxesIcon}        color="cyan" />
-              <StatsCard label="Low Stock Items"    value={data?.low_stock_count}     icon={AlertTriangle}    color="yellow" />
-              <StatsCard label="Out of Stock"       value={data?.out_of_stock_count}  icon={XCircle}          color="red" />
-              <StatsCard label="Pending Receipts"   value={data?.pending_receipts}    icon={ArrowDownCircle}  color="green" />
-              <StatsCard label="Pending Deliveries" value={data?.pending_deliveries}  icon={ArrowUpCircle}    color="purple" />
-              <StatsCard label="Pending Transfers"  value={data?.pending_transfers}   icon={ArrowLeftRight}   color="blue" />
-              <StatsCard label="Active Alerts"      value={data?.active_alerts}       icon={Bell}             color="red" />
+              <StatsCard label="Total Products"     value={data?.total_products}      icon={Package}          color="blue"   to="/products" />
+              <StatsCard label="Total Stock Units"  value={data?.total_stock_value}   icon={BoxesIcon}        color="cyan"   to="/stock" />
+              <StatsCard label="Low Stock Items"    value={data?.low_stock_count}     icon={AlertTriangle}    color="yellow" to="/stock?status=low" />
+              <StatsCard label="Out of Stock"       value={data?.out_of_stock_count}  icon={XCircle}          color="red"    to="/stock?status=out" />
+              <StatsCard label="Pending Receipts"   value={data?.pending_receipts}    icon={ArrowDownCircle}  color="green"  to="/receipts" />
+              <StatsCard label="Pending Deliveries" value={data?.pending_deliveries}  icon={ArrowUpCircle}    color="purple" to="/deliveries" />
+              <StatsCard label="Pending Transfers"  value={data?.pending_transfers}   icon={ArrowLeftRight}   color="blue"   to="/transfers" />
+              <StatsCard label="Active Alerts"      value={data?.active_alerts}       icon={Bell}             color="red"    to="/ledger" />
             </div>
 
             <div className="charts-grid">
@@ -117,6 +129,8 @@ export default function Dashboard() {
                       paddingAngle={4} 
                       dataKey="value"
                       label={{ fill: 'var(--text-primary)', fontSize: 11 }}
+                      onClick={onPieClick}
+                      style={{ cursor: 'pointer' }}
                     >
                       {pieData.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
                     </Pie>

@@ -35,8 +35,12 @@ async def get_cats(
 # ── Products ──────────────────────────────────────────────────────────────────
 
 @router.post("/products", response_model=ProductOut, status_code=201, dependencies=[ManagerDep])
-async def create_prod(data: ProductCreate, db: Annotated[AsyncSession, Depends(get_db)]):
-    return await create_product(db, data)
+async def create_prod(
+    data: ProductCreate,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    return await create_product(db, data, current_user.id)
 
 
 @router.get("/products", response_model=list[ProductOut], dependencies=[AnyDep])
