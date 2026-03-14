@@ -9,6 +9,7 @@ class TransferCreate(BaseModel):
     from_warehouse_id: uuid.UUID
     to_warehouse_id: uuid.UUID
     quantity: int = Field(..., gt=0)
+    status: Optional[str] = "completed"
 
 
 class TransferOut(BaseModel):

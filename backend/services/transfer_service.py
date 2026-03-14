@@ -22,28 +22,31 @@ async def create_transfer(
             detail={"code": "VALIDATION_ERROR", "message": "Source and destination warehouses must differ", "details": None},
         )
 
-    # Deduct from source
-    await upsert_stock(db, data.product_id, data.from_warehouse_id, -data.quantity)
-    # Add to destination
-    await upsert_stock(db, data.product_id, data.to_warehouse_id, data.quantity)
+    # Only update stock if status is "completed"
+    if data.status == "completed":
+        # Deduct from source
+        await upsert_stock(db, data.product_id, data.from_warehouse_id, -data.quantity)
+        # Add to destination
+        await upsert_stock(db, data.product_id, data.to_warehouse_id, data.quantity)
 
     transfer = Transfer(
         product_id=data.product_id,
         from_warehouse_id=data.from_warehouse_id,
         to_warehouse_id=data.to_warehouse_id,
         quantity=data.quantity,
-        status="completed",
+        status=data.status,
         created_by=user_id,
         updated_by=user_id,
     )
     db.add(transfer)
     await db.flush()
 
-    # Ledger entries for both warehouses
-    await create_ledger_entry(db, data.product_id, data.from_warehouse_id, "transfer_out", -data.quantity, transfer.id, user_id)
-    await create_ledger_entry(db, data.product_id, data.to_warehouse_id, "transfer_in", data.quantity, transfer.id, user_id)
+    if data.status == "completed":
+        # Ledger entries for both warehouses
+        await create_ledger_entry(db, data.product_id, data.from_warehouse_id, "transfer_out", -data.quantity, transfer.id, user_id)
+        await create_ledger_entry(db, data.product_id, data.to_warehouse_id, "transfer_in", data.quantity, transfer.id, user_id)
+        background_tasks.add_task(check_and_create_alert, db, data.product_id, data.from_warehouse_id)
 
-    background_tasks.add_task(check_and_create_alert, db, data.product_id, data.from_warehouse_id)
     await db.refresh(transfer)
     return transfer
 

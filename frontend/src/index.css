@@ -676,4 +676,21 @@ select.form-control option { background: var(--surface-2); }
 .mb-4 { margin-bottom: 16px; }
 .w-full { width: 100%; }
 .text-right { text-align: right; }
-.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- Recharts Overrides ---------------------------- */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+.recharts-tooltip-item-name, 
+.recharts-tooltip-item-separator, 
+.recharts-tooltip-item-value {
+  color: #ffffff !important;
+}
+
+.recharts-legend-item-text {
+  color: var(--text-primary) !important;
+}

@@ -123,11 +123,26 @@ TRANSFERS = [
 ]
 
 # ── Adjustment scenarios (prod_idx, wh_idx, qty_change, reason) ───────────────
-ADJUSTMENTS = [
-    (2, 0, -3,  "3 units damaged during transport — write-off"),
-    (16, 2, -5, "Expired stock removed from shelf"),
-    (20, 3, 10, "Miscounted during last audit — correction"),
-    (1, 0, -2,  "2 monitors returned to vendor (defective)"),
+# ── Pending / Draft scenarios for dashboard population ───────────────────────
+PENDING_RECEIPTS = [
+    {"supplier": "Global Logistics Inc", "items": [(0, 0, 50), (1, 0, 20)]},
+    {"supplier": "Oceanic Supplies",     "items": [(10, 1, 15), (12, 1, 10)]},
+]
+
+PENDING_DELIVERIES = [
+    {"customer": "Reliance Retail",      "items": [(5, 0, 100), (7, 0, 30)]},
+    {"customer": "Future Group",         "items": [(15, 2, 20), (16, 2, 15)]},
+]
+
+PENDING_TRANSFERS = [
+    (0, 0, 1, 10),   # Laptop from Mumbai → Delhi
+    (23, 1, 2, 5),   # Drill from Delhi → Bangalore
+]
+
+# ── Alert-triggering scenarios ──────────────────────────────────────────────
+ALERT_SCENARIOS = [
+    (23, 1, 2, "Low stock initialization for Cordless Drill"), # 2 units < reorder level 3
+    (24, 1, 1, "Low stock initialization for Screwdriver Set"), # 1 unit < reorder level 5
 ]
 
 
@@ -310,6 +325,33 @@ def main():
             print(f"   ✅ {pname} — {sign}{qty_change} — {reason[:40]}")
         else:
             print(f"   ❌ {pname} — {r.text[:80]}")
+
+    # ── Create pending/draft data ─────────────────────────────────
+    print("\n⏳ Creating draft receipts & deliveries (pending stats)...")
+    for rcpt in PENDING_RECEIPTS:
+        items = [{"product_id": prod_ids[p_idx], "warehouse_id": wh_ids[w_idx], "quantity": q} for p_idx, w_idx, q in rcpt["items"] if prod_ids[p_idx] and wh_ids[w_idx]]
+        if items:
+            client.post("/receipts", json={"supplier": rcpt["supplier"], "items": items}, headers=staff_headers)
+            print(f"   📥 Draft Receipt: {rcpt['supplier']}")
+
+    for dlv in PENDING_DELIVERIES:
+        items = [{"product_id": prod_ids[p_idx], "warehouse_id": wh_ids[w_idx], "quantity": q} for p_idx, w_idx, q in dlv["items"] if prod_ids[p_idx] and wh_ids[w_idx]]
+        if items:
+            client.post("/deliveries", json={"customer": dlv["customer"], "items": items}, headers=staff_headers)
+            print(f"   📤 Draft Delivery: {dlv['customer']}")
+
+    for prod_idx, from_wh, to_wh, qty in PENDING_TRANSFERS:
+        if prod_ids[prod_idx] and wh_ids[from_wh] and wh_ids[to_wh]:
+            data = {"product_id": prod_ids[prod_idx], "from_warehouse_id": wh_ids[from_wh], "to_warehouse_id": wh_ids[to_wh], "quantity": qty, "status": "pending"}
+            client.post("/transfers", json=data, headers=staff_headers)
+            print(f"   🔄 Pending Transfer: {PRODUCTS[prod_idx]['name'][:20]}")
+
+    print("\n🚨 Triggering alerts (low stock)...")
+    for prod_idx, wh_idx, qty, reason in ALERT_SCENARIOS:
+        if prod_ids[prod_idx] and wh_ids[wh_idx]:
+            data = {"product_id": prod_ids[prod_idx], "warehouse_id": wh_ids[wh_idx], "quantity_change": qty, "reason": reason}
+            client.post("/adjustments", json=data, headers=staff_headers)
+            print(f"   🚨 Alert Triggered: {PRODUCTS[prod_idx]['name'][:20]}")
 
     # ── Summary ───────────────────────────────────────────────────
     print("\n" + "=" * 60)
